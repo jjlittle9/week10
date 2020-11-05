@@ -1,0 +1,97 @@
+<html>
+  <head>
+    <title>BOP IT!</title>
+  </head>
+  <body>
+    <p>High Score: <span id="high_score"></span></p>
+    <p>Points: <span id="points"></span></p>
+    <p>Hit: <span id="command_display"></span></p>
+      
+    <button style="display: none" id="play_again">Play again?</button>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script>
+      var current_points = 0;
+      var timer = 2;
+      var play_again = $("#play_again");
+      
+      var current_command;
+      var commands = [
+        {name: "q", keyCode:81},
+        {name: "w", keyCode:87},
+        {name: "e", keyCode:69}
+      ];
+      
+      $(play_again).click(start_game);
+      
+      window.onload = function() {
+        window.onkeydown = function check_input(i) {
+          if (i.keyCode == current_command.keyCode) {
+            current_points += 10;
+            pick_command();
+            timer = 2;
+            update_UI();
+          } else if (i.keyCode != current_command.keyCode) {
+            game_over();
+          };
+        };
+      };
+      
+      function start_game() {
+        pick_command();
+        
+        timer = 2;
+        
+        $("#play_again").css("display", "none");
+        
+        current_points = 0;
+        
+        intervalId = setInterval(function(){
+          timer--;
+          update_UI();
+          game_timer();
+        }, 1000);
+      };
+      
+      function pick_command() {
+        command_rand = Math.floor(Math.random() * 3);
+        current_command = commands[command_rand];
+        update_UI();
+      };
+      
+      function update_UI() {
+        $("#command_display").text(current_command.name);
+        $("#points").text(current_points);
+        $("#high_score").text(high_score);
+      };
+      
+      function game_timer() {
+        if (timer <= 0){
+          game_over();
+        };
+      };
+      
+      function game_over() {
+        
+        
+        $("#play_again").css("display", "inline");
+        
+        if( current_points >= high_score) {
+          high_score = current_points;
+          localStorage.setItem("bopit_high_score", high_score);
+        }; 
+        update_UI();
+        clearInterval(intervalId);
+      };
+      
+      var high_score;
+      if (localStorage.getItem("bopit_high_score") != null) {
+        high_score = localStorage.getItem("bopit_high_score");
+      } else {
+        high_score = 0;
+      };
+      
+      start_game();
+    </script>
+  </body>
+</html>
